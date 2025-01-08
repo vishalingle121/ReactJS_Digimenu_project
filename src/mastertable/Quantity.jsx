@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef} from "react"
 import Footers from "../document/Footers"
 import Navbars from "../document/Navbars"
 import Table from 'react-bootstrap/Table';
@@ -14,7 +14,8 @@ export default function Quantity()
   const[qtyp,setQtyp]=useState("");
   const[uqtid,setUqtid]=useState("");
   const[uqtyp,setUqytp]=useState("");
-
+  const myRef = useRef(null); 
+  
   
   
   useEffect(()=>{
@@ -111,7 +112,7 @@ function updQtyDt(id,nm)
   alert("ID: "+id+" Type: "+nm);
   setUqtid(id);
   setUqytp(nm);
- 
+  myRef.current.scrollIntoView({ behavior: 'smooth' }); 
 }
 
   return(
@@ -161,7 +162,7 @@ function updQtyDt(id,nm)
 
 {/* --------------------------------Update Quanity---------------------------------------*/}
 
-      <Container style={{background:'lightgreen',marginTop:'25px',borderTop:'4px solid green',borderBottom:'3px solid green'}}>
+      <Container style={{background:'lightgreen',marginTop:'25px',borderTop:'4px solid green',borderBottom:'3px solid green'}} ref={myRef}>
 <Container style={{width:'500px',padding:'20px'}} className="text-center">
     <h2 style={{textAlign:"center",color:'brown'}}>Update Quantity </h2><br/>
     <FloatingLabel

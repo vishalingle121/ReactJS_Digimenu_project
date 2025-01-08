@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Footers from "../document/Footers";
 import Navbars from "../document/Navbars";
 import Button from 'react-bootstrap/Button';
@@ -14,6 +14,8 @@ export default function Foodgroup(){
     const[data,setData]=useState([]);
     const[ugid,setUgid]=useState("");
     const[ufnm,setUfnm]=useState("");
+
+    const myRef = useRef(null); 
 
     useEffect(()=>{
         foodgroup();
@@ -132,7 +134,7 @@ function updFoodgdt(id,nm)
   alert(id+" "+nm);
   setUgid(id);
   setUfnm(nm);
-
+  myRef.current.scrollIntoView({ behavior: 'smooth' });
 }
 
     return(
@@ -145,8 +147,8 @@ function updFoodgdt(id,nm)
         <th style={{backgroundColor:'lightyellow'}}>Sr.No.</th>
           <th style={{backgroundColor:'lightyellow'}}>Group Id</th>
           <th style={{backgroundColor:'lightyellow'}}>Group Name</th>
-          <th style={{backgroundColor:'lightyellow'}}>Update Event</th>
-          <th style={{backgroundColor:'lightyellow'}}> Event</th>
+          <th style={{width:'10%',backgroundColor:'lightyellow'}}>Action</th>
+          <th style={{width:'10%',backgroundColor:'lightyellow'}}> Action</th>
         </tr>
       </thead>
       <tbody>
@@ -184,7 +186,7 @@ function updFoodgdt(id,nm)
 
       {/*--------------------------Update Contail-----------------------------*/}
 
-      <Container style={{background:'lightgreen',marginTop:'25px',borderTop:'4px solid green',borderBottom:'3px solid green'}}>
+      <Container style={{background:'lightgreen',marginTop:'25px',borderTop:'4px solid green',borderBottom:'3px solid green'}} ref={myRef}>
 <Container style={{width:'500px',padding:'20px'}} className="text-center">
     <h2 style={{textAlign:"center",color:'brown'}}>Update FoodGroup </h2><br/>
     <FloatingLabel

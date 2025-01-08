@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form';
 import Container from "react-bootstrap/esm/Container";
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 export default function Menu(){
 
     const[data,setMData]=useState([]);
@@ -19,22 +19,25 @@ export default function Menu(){
     const[uprice,setUprice]=useState("");
     const[uqid,setUqid]=useState("");
     const[ugid,setUgid]=useState("");
+    const myRef = useRef(null); 
 
     const [data1,setData1]=useState([]);
     const [data2,setData2]=useState([]);
-
+    const[datadfu,setDataDFU]=useState([]);
+    const[datadqu,setDataDQU]=useState([]);
     useEffect(()=>{
         menu();
         dropdownG();
-        dropdownQ()
+        dropdownQ();
+       
     },[]);
     function menu()
     {
        // alert("menu");
-        axios.get("http://localhost:8080/menu")
+        axios.get("http://localhost:8080/menudatalst")
         .then(response=>{
             console.log(response.data);
-            setMData(response.data.menulst);
+            setMData(response.data.Menudata);
             console.log(data);
         })
     }
@@ -69,11 +72,10 @@ export default function Menu(){
         if(res=="200")
         {
           alert(response.data.message);
-          menu();
+         
           setPrice("");
-          setGid("");
           setNm("");
-          setQid("");
+          menu();
         }
       })
      }
@@ -112,6 +114,8 @@ function updateMenu()
       alert(response.data.message);
       menu();
       setUmid("");
+      setUnm("");
+      setUprice("");
     }
     else{
       alert(response.data.message);
@@ -143,13 +147,14 @@ else{
   console.log("Deletion canceled by the user.");
 }
 }
-//-----------------------------------Call Api------------------------------------
+//-----------------------------------Drop down FoodGroupApi------------------------------------
 function dropdownG()
   {
     axios.get("http://localhost:8080/foodgroup")
     .then(response=>{
       console.log(response.data);
       setData1(response.data.foodglist);
+      setDataDFU(response.data.foodglist);
       //setData(response.data.)
       
     })
@@ -162,13 +167,14 @@ function dropdownG()
     console.log('Selected value:', selectedValue); 
     setGid(selectedValue);
   };
-  //-------------------update select--------------------------------------------
+  //-------------------Drop down QtyMast select--------------------------------------------
   function dropdownQ()
   {
     axios.get("http://localhost:8080/qtymast")
     .then(response=>{
       console.log(response.data);
       setData2(response.data.qtymastlst);
+      setDataDQU(response.data.qtymastlst);
       //setData(response.data.)
       
     })
@@ -192,7 +198,27 @@ function  updateMenuClick(cmid,cmnm,cprice,cgid,cqid)
   setUprice(cprice);
   setUgid(cgid);
   setUqid(cqid);
+  myRef.current.scrollIntoView({ behavior: 'smooth' }); 
 }
+//------------------------------------drop down update Food group----------------------------
+const [selectedOptionFU, setSelectedOptionFU] = useState(ugid);
+
+  const handleChangeFU = (event) => {
+    const selectedValueFU = event.target.value; 
+    setSelectedOptionFU(selectedValueFU); 
+    console.log('Selected value:', selectedValueFU); 
+    setUgid(selectedValueFU);
+  }
+//-----------------------------------Dropdon Quantity update -------------------------
+
+const [selectedOptionQU, setSelectedOptionQU] = useState("");
+
+  const handleChangeQU = (event) => {
+    const selectedValueQU = event.target.value; 
+    setSelectedOptionQU(selectedValueQU); 
+    console.log('Selected value:', selectedValueQU); 
+    setUqid(selectedValueQU);
+  }
 //---------------------------------------------------------------------------------------------//
   
     return(
@@ -204,11 +230,12 @@ function  updateMenuClick(cmid,cmnm,cprice,cgid,cqid)
         <tr >
         <th style={{backgroundColor:'lightyellow'}}>Sr.No.</th>
           <th style={{backgroundColor:'lightyellow'}}>Menu ID</th>
-          <th style={{backgroundColor:'lightyellow'}}>Menu Name</th>
-          <th style={{backgroundColor:'lightyellow'}}>Menu Price </th>
-          <th style={{backgroundColor:'lightyellow'}}>Group ID</th>
-          <th style={{backgroundColor:'lightyellow'}}>Qty ID</th>
-          <th style={{backgroundColor:'lightyellow'}}>Add Event</th>
+          <th style={{backgroundColor:'lightyellow'}}>Group Name</th>
+          <th style={{backgroundColor:'lightyellow'}}>Menu Name </th>
+          <th style={{backgroundColor:'lightyellow'}}>Price</th>
+          <th style={{backgroundColor:'lightyellow'}}>Qty </th>
+          <th style={{width:'10%',backgroundColor:'lightyellow'}}>Action</th>
+          <th style={{width:'10%',backgroundColor:'lightyellow'}}>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -217,10 +244,10 @@ function  updateMenuClick(cmid,cmnm,cprice,cgid,cqid)
         <tr>
           <td>{index + 1}</td>
           <td>{item.mid}</td>
+          <td>{item.gname} </td>
           <td>{item.mname}</td>
           <td>{item.mprice}</td>
-          <td>{item.gid} </td>
-          <td>{item.qid} </td>
+          <td>{item.qtytype} </td>
           <td><Button variant="success" onClick={()=>updateMenuClick(item.mid,item.mname,item.mprice,item.gid,item.qid)}>Update</Button> </td>
           <td><Button variant="danger" onClick={()=>delMenu(item.mid)}>Delete</Button> </td>
         </tr>) 
@@ -272,7 +299,7 @@ function  updateMenuClick(cmid,cmnm,cprice,cgid,cqid)
       </Container>
 
     {/*---------------------------Update MEnu------------------------------*/}
-    <Container style={{background:'lightgray',marginTop:'25px',borderTop:'4px solid gray',borderBottom:'3px solid gray' }}>
+    <Container style={{background:'lightgray',marginTop:'25px',borderTop:'4px solid gray',borderBottom:'3px solid gray' }} ref={myRef}>
 <Container style={{width:'500px',padding:'20px'}} className="text-center">
     <h2 style={{textAlign:"center",color:'green'}}>Update Menu </h2><br/>
     <FloatingLabel
@@ -292,12 +319,30 @@ function  updateMenuClick(cmid,cmnm,cprice,cgid,cqid)
       <FloatingLabel controlId="floatingInput" label="Menu Price"className="mb-3">
         <Form.Control type="text" value={uprice} placeholder="Menu Price" onChange={updPrice} />
       </FloatingLabel>
-      <FloatingLabel controlId="floatingInput" label="Group Id"className="mb-3">
-        <Form.Control type="number"  value={ugid} placeholder="FoodGroup Type" onChange={updGid}/>
-      </FloatingLabel>
-      <FloatingLabel controlId="floatingInput" label="Quantity Id"className="mb-3">
-        <Form.Control type="number" value={uqid} placeholder="FoodGroup Type" onChange={updQid}/>
-      </FloatingLabel>
+      <div className="mb-3">
+      <span style={{marginRight:'10px',fontSize:'17px'}}>Select Group</span>
+       <select value={selectedOptionFU} onChange={handleChangeFU} style={{width:'200px',height:'40px'}}>
+      <option value={""} >Select</option>
+      {datadfu.map((item)=>{
+            return(
+        <option value={item.gid}>{item.gname}</option>
+       
+      ) 
+    })}
+      </select>
+</div>
+<div className="mb-3">
+      <span style={{marginRight:'10px',fontSize:'17px'}}>Select Quantity</span>
+       <select value={selectedOptionQU} onChange={handleChangeQU} style={{width:'200px',height:'40px'}}>
+      <option value={""} >Select</option>
+      {datadqu.map((item)=>{
+            return(
+        <option value={item.qid}>{item.qtytype}</option>
+       
+      ) 
+    })}
+      </select>
+</div>
       <Button style={{margin:'20px'}} variant="success" onClick={updateMenu} >Update</Button>
       </Container>
       </Container>
