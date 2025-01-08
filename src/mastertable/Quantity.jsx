@@ -7,6 +7,7 @@ import axios from "axios";
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import Container from "react-bootstrap/esm/Container";
+
 export default function Quantity()
 {
   const [data,setData]=useState([]);
@@ -14,8 +15,8 @@ export default function Quantity()
   const[uqtid,setUqtid]=useState("");
   const[uqtyp,setUqytp]=useState("");
 
-
-
+  
+  
   useEffect(()=>{
     Qtydata();
   },[]);
@@ -74,6 +75,7 @@ function qtyUpd(){
           alert(response.data.message);
           Qtydata();
           setUqtid("");
+          setUqytp("");
         }
         else{
           alert(response.data.message);
@@ -83,7 +85,10 @@ function qtyUpd(){
 //-----------------------------Qty Delete-------------------------------------
       function delQty(id)
       {
-        alert("You are Delete this ID "+id);
+        const isConfirmed = window.confirm("Are you sure you want to delete this item?");
+        if(isConfirmed)
+        {
+        //alert("You are Delete this ID "+id);
         axios.delete("http://localhost:8080/deleteqty/"+id)
         .then(response=>{
           let qdel=response.data.status;
@@ -94,7 +99,20 @@ function qtyUpd(){
           }
         })
       }
+      else{
+        // If user clicked "No" (Cancel)
+    console.log("Deletion canceled by the user.");
+      }
+    }
 
+//-------------------------updQtyDt get Data---------------------------------------
+function updQtyDt(id,nm)
+{
+  alert("ID: "+id+" Type: "+nm);
+  setUqtid(id);
+  setUqytp(nm);
+ 
+}
 
   return(
     <>
@@ -106,7 +124,8 @@ function qtyUpd(){
         <th style={{backgroundColor:'lightyellow'}}>Sr.No.</th>
           <th style={{backgroundColor:'lightyellow'}}>Quantity ID</th>
           <th style={{backgroundColor:'lightyellow'}}>Quanity Type</th>
-          <th style={{backgroundColor:'lightyellow'}}>Event</th>
+          <th style={{width:'10%', backgroundColor:'lightyellow'}}>Event</th>
+          <th style={{width:'10%', backgroundColor:'lightyellow'}}>Event</th>
         </tr>
       </thead>
       <tbody>
@@ -116,7 +135,7 @@ function qtyUpd(){
           <td>{index + 1}</td>
           <td>{item.qid}</td>
           <td>{item.qtytype}</td>
-          
+          <td><Button variant="success" onClick={()=>updQtyDt(item.qid,item.qtytype)} >Update</Button> </td>
           <td><Button variant="danger" onClick={()=>delQty(item.qid)} >Delete</Button> </td>
         </tr>) 
         })}   
@@ -150,10 +169,10 @@ function qtyUpd(){
         label="Group ID"
         className="mb-3"
       >
-        <Form.Control type="number" placeholder="FoodGroup ID" onChange={qtyUpdid} />
+        <Form.Control type="number"  disabled value={uqtid} placeholder="FoodGroup ID" onChange={qtyUpdid} />
       </FloatingLabel>
       <FloatingLabel controlId="floatingPassword" label="FoodGroup Type">
-        <Form.Control type="text" placeholder="FoodGroup Type" onChange={qtyUpdType}/>
+        <Form.Control type="text" value={uqtyp} placeholder="FoodGroup Type" onChange={qtyUpdType}/>
       </FloatingLabel>
       <Button style={{margin:'20px'}} variant="success" onClick={qtyUpd}>Update</Button>
       </Container>

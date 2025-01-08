@@ -20,9 +20,13 @@ export default function Menu(){
     const[uqid,setUqid]=useState("");
     const[ugid,setUgid]=useState("");
 
+    const [data1,setData1]=useState([]);
+    const [data2,setData2]=useState([]);
 
     useEffect(()=>{
         menu();
+        dropdownG();
+        dropdownQ()
     },[]);
     function menu()
     {
@@ -67,6 +71,9 @@ export default function Menu(){
           alert(response.data.message);
           menu();
           setPrice("");
+          setGid("");
+          setNm("");
+          setQid("");
         }
       })
      }
@@ -111,9 +118,12 @@ function updateMenu()
     }
   })
 }
-
+//------------------------------------delete menu---------------------------
 function delMenu(id)
 {
+  const isConfirmed = window.confirm("Are you sure you want to delete this item?");
+        if(isConfirmed)
+        {
   alert(id);
   axios.delete("http://localhost:8080/deletemenu/"+id)
   .then(response=>{
@@ -128,8 +138,63 @@ function delMenu(id)
     }
   })
 }
+else{
+  // If user clicked "No" (Cancel)
+  console.log("Deletion canceled by the user.");
+}
+}
+//-----------------------------------Call Api------------------------------------
+function dropdownG()
+  {
+    axios.get("http://localhost:8080/foodgroup")
+    .then(response=>{
+      console.log(response.data);
+      setData1(response.data.foodglist);
+      //setData(response.data.)
+      
+    })
+  }
+ const [selectedOption, setSelectedOption] = useState("");
 
+  const handleChange = (event) => {
+    const selectedValue = event.target.value; 
+    setSelectedOption(selectedValue); 
+    console.log('Selected value:', selectedValue); 
+    setGid(selectedValue);
+  };
+  //-------------------update select--------------------------------------------
+  function dropdownQ()
+  {
+    axios.get("http://localhost:8080/qtymast")
+    .then(response=>{
+      console.log(response.data);
+      setData2(response.data.qtymastlst);
+      //setData(response.data.)
+      
+    })
+  }
+  
+  
+  const [selectedOption2, setSelectedOption2] = useState("");
 
+  const handleChange2 = (event) => {
+    const selectedValue2 = event.target.value; 
+    setSelectedOption2(selectedValue2); 
+    console.log('Selected value:', selectedValue2); 
+    setQid(selectedValue2);
+  };
+//----------------------------------------------------------------update on-----------
+function  updateMenuClick(cmid,cmnm,cprice,cgid,cqid)
+{
+  alert(cmid+" "+cmnm+" "+cprice+" "+cgid+" "+cqid);
+  setUmid(cmid);
+  setUnm(cmnm);
+  setUprice(cprice);
+  setUgid(cgid);
+  setUqid(cqid);
+}
+//---------------------------------------------------------------------------------------------//
+  
     return(
         <>
         <Navbars/>
@@ -156,6 +221,7 @@ function delMenu(id)
           <td>{item.mprice}</td>
           <td>{item.gid} </td>
           <td>{item.qid} </td>
+          <td><Button variant="success" onClick={()=>updateMenuClick(item.mid,item.mname,item.mprice,item.gid,item.qid)}>Update</Button> </td>
           <td><Button variant="danger" onClick={()=>delMenu(item.mid)}>Delete</Button> </td>
         </tr>) 
         })}   
@@ -175,17 +241,37 @@ function delMenu(id)
       <FloatingLabel controlId="floatingInput" label="Menu Price"className="mb-3">
         <Form.Control type="text" placeholder="Menu Price" onChange={menuPrice}/>
       </FloatingLabel>
-      <FloatingLabel controlId="floatingInput" label="Group Id"className="mb-3">
-        <Form.Control type="number" placeholder="FoodGroup Type"  onChange={menuGid}/>
-      </FloatingLabel>
-      <FloatingLabel controlId="floatingInput" label="Quantity Id"className="mb-3">
-        <Form.Control type="number" placeholder="FoodGroup Type" onChange={menuQid}/>
-      </FloatingLabel>
+      
+      <div className="mb-3">
+      <span style={{marginRight:'10px',fontSize:'17px'}}>Select Group</span>
+       <select value={selectedOption} onChange={handleChange} style={{width:'200px',height:'40px'}}>
+      <option value={""} >Select</option>
+      {data1.map((item)=>{
+            return(
+        <option value={item.gid}>{item.gname}</option>
+       
+      ) 
+    })}
+      </select>
+</div>
+     
+<div className="mb-3">
+      <span style={{marginRight:'5px',fontSize:'17px'}}>Select Quantity</span>
+       <select value={selectedOption2} onChange={handleChange2} style={{width:'200px',height:'40px'}}>
+      <option value={""} >Select</option>
+      {data2.map((item)=>{
+            return(
+        <option value={item.qid}>{item.qtytype}</option>
+       
+      ) 
+    })}
+      </select>
+</div>
       <Button style={{margin:'20px'}} variant="primary" onClick={menuAdd}>Save Data</Button>
       </Container>
       </Container>
 
-    {/*---------------------------Add MEnu------------------------------*/}
+    {/*---------------------------Update MEnu------------------------------*/}
     <Container style={{background:'lightgray',marginTop:'25px',borderTop:'4px solid gray',borderBottom:'3px solid gray' }}>
 <Container style={{width:'500px',padding:'20px'}} className="text-center">
     <h2 style={{textAlign:"center",color:'green'}}>Update Menu </h2><br/>
@@ -194,23 +280,23 @@ function delMenu(id)
         label="Menu Id"
         className="mb-3"
       >
-        <Form.Control type="number" placeholder="Menu Id" onChange={updMid}  />
+        <Form.Control type="number" disabled value={umid} placeholder="Menu Id" onChange={updMid}  />
       </FloatingLabel>
       <FloatingLabel
         controlId="floatingInput"
         label="Menu Name"
         className="mb-3"
       >
-        <Form.Control type="text" placeholder="Menu Name" onChange={updName} />
+        <Form.Control type="text" value={unm} placeholder="Menu Name" onChange={updName} />
       </FloatingLabel>
       <FloatingLabel controlId="floatingInput" label="Menu Price"className="mb-3">
-        <Form.Control type="text" placeholder="Menu Price" onChange={updPrice} />
+        <Form.Control type="text" value={uprice} placeholder="Menu Price" onChange={updPrice} />
       </FloatingLabel>
       <FloatingLabel controlId="floatingInput" label="Group Id"className="mb-3">
-        <Form.Control type="number" placeholder="FoodGroup Type" onChange={updGid}/>
+        <Form.Control type="number"  value={ugid} placeholder="FoodGroup Type" onChange={updGid}/>
       </FloatingLabel>
       <FloatingLabel controlId="floatingInput" label="Quantity Id"className="mb-3">
-        <Form.Control type="number" placeholder="FoodGroup Type" onChange={updQid}/>
+        <Form.Control type="number" value={uqid} placeholder="FoodGroup Type" onChange={updQid}/>
       </FloatingLabel>
       <Button style={{margin:'20px'}} variant="success" onClick={updateMenu} >Update</Button>
       </Container>
